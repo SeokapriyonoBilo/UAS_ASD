@@ -1,0 +1,269 @@
+# NAMA : SEOKAPRIYONO BILO
+# NIM : 2309116095
+# KELAS : B (2023)
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+from prettytable import PrettyTable
+import matplotlib.pyplot as plt
+import datetime
+
+# Inisialisasi daftar barang
+daftar_barang = [
+    {"id": 1, "nama": "Kursi", "harga": 180000},
+    {"id": 2, "nama": "Meja", "harga": 275000},
+    {"id": 3, "nama": "Cermin", "harga": 65000},
+    {"id": 4, "nama": "Lemari", "harga": 350000},
+    {"id": 5, "nama": "Sofa", "harga": 500000},
+    {"id": 6, "nama": "Bantal", "harga": 80000},
+    {"id": 7, "nama": "Vas Bunga", "harga": 30000},
+    {"id": 8, "nama": "Selimut", "harga": 100000},
+    {"id": 9, "nama": "Rak buku", "harga": 150000},
+    {"id": 10, "nama": "Seprai", "harga": 50000},
+]
+
+# Inisialisasi dictionary untuk data pengguna
+users = {
+    "user1": {"nama": "Jack", "pin": "1122", "saldo": 2500000, "e-pay": 0, "usia": 30, "gender": "L"},
+    "user2": {"nama": "June", "pin": "1234", "saldo": 2800000, "e-pay": 0, "usia": 25, "gender": "P"},
+    "user3": {"nama": "Olin", "pin": "2211", "saldo": 1900000, "e-pay": 0, "usia": 28, "gender": "P"},
+    "user4": {"nama": "Law", "pin": "3344", "saldo": 10000000, "e-pay": 0, "usia": 35, "gender": "L"},
+    "user5": {"nama": "Gen", "pin": "0011", "saldo": 8000000, "e-pay": 0, "usia": 40, "gender": "L"}
+}
+
+# Inisialisasi variabel untuk menyimpan data transaksi
+transactions = {}
+
+# Cek waktu akses
+def cek_waktu_akses():
+    sekarang = datetime.datetime.now().time()
+    jam_buka = datetime.time(8, 0, 0)
+    jam_tutup = datetime.time(16, 0, 0)
+    return jam_buka <= sekarang <= jam_tutup
+
+# Login
+def login():
+    print("==============================================")
+    print("Selamat datang, Silahkan Login terlebih dahulu")
+    print("==============================================")
+    pin = input("Masukkan PIN Anda: ")
+    for user, data in users.items():
+        if data["pin"] == pin:
+            return user
+    return None
+
+# Untuk menampilkan informasi pengguna dalam bentuk tabel
+def tampilkan_info_pengguna(user):
+    tabel = PrettyTable()
+    tabel.field_names = ["Nama", "Saldo", "E-Pay", "Usia", "Gender"]
+    tabel.add_row([
+        users[user]["nama"],
+        "Rp {:.2f}".format(users[user]["saldo"]),
+        "Rp {:.2f}".format(users[user]["e-pay"]),
+        users[user]["usia"],
+        users[user]["gender"]
+    ])
+    print("\nInformasi Pengguna:")
+    print(tabel)
+
+# Untuk top up saldo e-pay
+def top_up(user):
+    while True:
+        try:
+            topup_amount = float(input("Masukkan jumlah top-up e-pay: "))
+            if topup_amount <= 0:
+                print("Jumlah top-up salah. Silakan coba lagi.")
+            elif topup_amount > users[user]["saldo"]:
+                print("Top-up melebihi saldo utama. Silakan coba lagi.")
+            else:
+                break
+        except ValueError:
+            print("Masukkan jumlah top-up dengan format yang benar. Silakan coba lagi.")
+    users[user]["saldo"] -= topup_amount
+    users[user]["e-pay"] += topup_amount
+    print("Top-up berhasil! Saldo e-pay Anda: Rp {:.2f}".format(users[user]["e-pay"]))
+    print("Sisa saldo utama Anda: Rp {:.2f}".format(users[user]["saldo"]))
+
+# Untuk menampilkan barang (id, nama, harga)
+def tampilkan_daftar_barang():
+    tabel = PrettyTable()
+    tabel.field_names = ["ID", "Nama Barang", "Harga"]
+    for barang in daftar_barang:
+        harga_rp = "Rp {:.2f}".format(barang["harga"])
+        tabel.add_row([barang["id"], barang["nama"], harga_rp])
+    print("\nDaftar Barang:")
+    print(tabel)
+
+# Untuk menampilkan daftar barang yang dibeli
+def tampilkan_daftar_belanja(barang_dibeli):
+    tabel = PrettyTable()
+    tabel.field_names = ["ID", "Nama Barang", "Harga"]
+    for barang in barang_dibeli:
+        harga_rp = "Rp {:.2f}".format(barang["harga"])
+        tabel.add_row([barang["id"], barang["nama"], harga_rp])
+    print("Daftar Barang yang Dibeli:")
+    print(tabel)
+
+# Fungsi untuk menghitung total harga belanja setelah diskon
+def hitung_total_harga_diskon(total_harga):
+    if total_harga >= 350000:
+        diskon = 0.25  
+    elif total_harga >= 100000:
+        diskon = 0.15  
+    else:
+        diskon = 0
+
+    total_diskon = total_harga * diskon
+    total_harga_diskon = total_harga - total_diskon
+    return total_harga_diskon, total_diskon
+
+# Fungsi untuk menampilkan ringkasan belanja dalam PrettyTable
+def tampilkan_ringkasan_belanja_pretty_table(user, barang_dibeli, total_harga):
+    total_harga_diskon, total_diskon = hitung_total_harga_diskon(total_harga)
+
+    tabel = PrettyTable()
+    tabel.field_names = ["Nama Barang", "Harga"]
+    for barang in barang_dibeli:
+        tabel.add_row([barang["nama"], "Rp {:.2f}".format(barang["harga"])])
+    
+    tabel.add_row(["Total Harga", "Rp {:.2f}".format(total_harga)])
+    tabel.add_row(["Total Diskon", "Rp {:.2f}".format(total_diskon)])
+    tabel.add_row(["Total Harga Setelah Diskon", "Rp {:.2f}".format(total_harga_diskon)])
+
+    print("\nRingkasan Belanja:")
+    print(tabel)
+
+# Update fungsi beli_barang
+def beli_barang(user):
+    tampilkan_daftar_barang()
+    barang_dibeli = []
+    total_harga = 0  
+
+    while True:
+        try:
+            id_barang = int(input("Masukkan ID barang yang ingin dibeli (0 untuk selesai belanja): "))
+            if id_barang == 0:
+                break
+            barang_dipilih = next((barang for barang in daftar_barang if barang["id"] == id_barang), None)
+            if barang_dipilih:
+                harga_barang = barang_dipilih["harga"]
+                print("Anda memilih {} dengan harga {:.2f}".format(barang_dipilih["nama"], harga_barang))
+                if harga_barang > users[user]["e-pay"]:
+                    print("Saldo e-pay tidak mencukupi untuk membeli barang ini.")
+                else:
+                    users[user]["e-pay"] -= harga_barang
+                    print("Pembelian berhasil! Sisa Saldo e-pay Anda: Rp {:.2f}".format(users[user]["e-pay"]))
+                    barang_dibeli.append({"id": id_barang, "nama": barang_dipilih["nama"], "harga": harga_barang})
+                    total_harga += harga_barang  
+        except ValueError:
+            print("Masukkan ID barang dengan format yang benar. Silakan coba lagi.")
+
+    if barang_dibeli:
+        tampilkan_ringkasan_belanja_pretty_table(user, barang_dibeli, total_harga)
+        simpan_transaksi(user, barang_dibeli, total_harga)
+
+
+# Fungsi untuk menyimpan transaksi dengan total harga setelah diskon
+def simpan_transaksi(user, barang_dibeli, total_harga_diskon):
+    transaksi_id = len(transactions) + 1
+    transactions[transaksi_id] = {
+        "user": user,
+        "barang": barang_dibeli,
+        "total_harga_diskon": total_harga_diskon, 
+        "tanggal": datetime.datetime.now()
+    }
+    print("Transaksi berhasil disimpan dengan ID: {}".format(transaksi_id))
+
+# Fungsi untuk mengecek saldo e-pay
+def cek_saldo_epay(user, total_harga):
+    if total_harga <= users[user]["e-pay"]:
+        return True
+    else:
+        return False
+
+# Fungsi untuk menampilkan riwayat transaksi
+def tampilkan_riwayat_transaksi():
+    if transactions:
+        tabel = PrettyTable()
+        tabel.field_names = ["ID Transaksi", "Nama Pengguna", "Barang", "Total Harga", "Total Diskon", "Tanggal"]
+
+        for transaksi_id, transaksi in transactions.items():
+            user = transaksi["user"]
+            nama_pengguna = users[user]["nama"]
+            barang_list = ", ".join([barang["nama"] for barang in transaksi["barang"]])
+            total_harga = sum([barang["harga"] for barang in transaksi["barang"]])
+            total_diskon = total_harga * 0.15 if total_harga >= 100000 else 0  
+            total_harga_diskon = total_harga - total_diskon  
+            tanggal = transaksi["tanggal"].strftime("%Y-%m-%d %H:%M:%S")
+            tabel.add_row([transaksi_id, nama_pengguna, barang_list, total_harga_diskon, total_diskon, tanggal])
+
+        print("\nRiwayat Transaksi:")
+        print(tabel)
+    else:
+        print("Belum ada transaksi yang tersimpan.")
+
+# Fungsi untuk menampilkan grafik jumlah barang yang dibeli
+def tampilkan_grafik_barang_dibeli():
+    if transactions:
+        barang_dict = {}
+        for transaksi in transactions.values():
+            for barang in transaksi["barang"]:
+                if barang["nama"] in barang_dict:
+                    barang_dict[barang["nama"]] += 1
+                else:
+                    barang_dict[barang["nama"]] = 1
+
+        nama_barang = list(barang_dict.keys())
+        jumlah_barang = list(barang_dict.values())
+
+        plt.bar(nama_barang, jumlah_barang)
+        plt.xlabel("Nama Barang")
+        plt.ylabel("Jumlah Dibeli")
+        plt.title("Jumlah Barang yang Dibeli")
+        plt.xticks(rotation=45)
+        plt.show()
+    else:
+        print("Belum ada transaksi yang tersimpan untuk menampilkan grafik.")
+    return
+
+# Fungsi utama
+def main():
+    if not cek_waktu_akses():
+        print("Sistem hanya dapat diakses pada jam 08:00 - 16:00. Silakan coba lagi nanti.")
+        return
+    user = login()
+    if not user:
+        print("PIN salah. Akses ditolak.")
+        return
+    tampilkan_info_pengguna(user)
+
+    while True:
+        print("\n=================================")
+        print("Selamat datang, {}!".format(users[user]["nama"]))
+        print("Menu Utama:")
+        print("1. Top-up e-pay")
+        print("2. Belanja Barang")
+        print("3. Tampilkan Riwayat Transaksi")
+        print("4. Tampilkan Grafik Barang Dibeli")
+        print("5. Keluar")
+        print("=================================")
+
+        pilihan = input("Pilih menu (1/2/3/4/5): ")
+        if pilihan == "1":
+            top_up(user)
+        elif pilihan == "2":
+            tampilkan_daftar_barang()
+            beli_barang(user)
+        elif pilihan == "3":
+            tampilkan_riwayat_transaksi()
+        elif pilihan == "4":
+            tampilkan_grafik_barang_dibeli()
+        elif pilihan == "5":
+            print("Terima kasih telah menggunakan layanan kami!")
+            break
+        else:
+            print("Pilihan menu tidak valid. Silakan coba lagi.")
+
+if __name__ == "__main__":
+    main()
